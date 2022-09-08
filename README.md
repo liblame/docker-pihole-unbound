@@ -1,4 +1,4 @@
-# Pi-Hole + Unbound - 1 Container
+# Pi-Hole + Unbound
 
 ## Description
 
@@ -28,35 +28,15 @@ First create a `.env` file to substitute variables for your deployment.
 Example `.env` file in the same directory as your `docker-compose.yaml` file:
 
 ```
-FTLCONF_REPLY_ADDR4=192.168.1.10
-TZ=America/Los_Angeles
+FTLCONF_REPLY_ADDR4=192.168.1.2
+TZ=Europe/Berlin
 WEBPASSWORD=QWERTY123456asdfASDF
 REV_SERVER=true
-REV_SERVER_DOMAIN=local
+REV_SERVER_DOMAIN=fritz.box
 REV_SERVER_TARGET=192.168.1.1
-REV_SERVER_CIDR=192.168.0.0/16
+REV_SERVER_CIDR=192.168.1.1/24
 HOSTNAME=pihole
-DOMAIN_NAME=pihole.local
-PIHOLE_WEBPORT=80
+DOMAIN_NAME=pihole.fritz.box
+PIHOLE_WEBPORT=81
 WEBTHEME=default-light
 ```
-
-### Using Portainer stacks?
-
-> 2022-3-11: I'm being told that the advice below is no longer true in Portainer. If you're using Portainer, first try it without removing the volumes declaration and see if it works.
-
-Portainer stacks are a little weird and don't want you to declare your named volumes, so remove this block from the top of the `docker-compose.yaml` file before copy/pasting into Portainer's stack editor:
-
-```yaml
-volumes:
-  etc_pihole-unbound:
-  etc_pihole_dnsmasq-unbound:
-```
-
-### Running the stack
-
-```bash
-docker-compose up -d
-```
-
-> If using Portainer, just paste the `docker-compose.yaml` contents into the stack config and add your *environment variables* directly in the UI.
