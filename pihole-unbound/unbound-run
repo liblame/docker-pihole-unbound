@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bash
+#!/command/with-contenv bash
 
 s6-echo "Starting unbound"
 
@@ -22,4 +22,3 @@ $HELPER chroot_setup
 $HELPER root_trust_anchor_update 2>&1 | logger -p daemon.info -t unbound-anchor
 
 $DAEMON -d $DAEMON_OPTS
-
