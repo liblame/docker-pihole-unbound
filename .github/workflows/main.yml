@@ -24,16 +24,6 @@ jobs:
         type: "stable"
       run: echo release=$(curl --silent "https://api.github.com/repos/pi-hole/docker-pi-hole/releases/latest" | jq -r '.tag_name') >> $GITHUB_OUTPUT
 
-    - name: check if release is new
-      id: check_release
-      run: |
-        if [ "${{ steps.pihole_version.outputs.release }}" != "${{ github.event.before }}" ]
-        then
-          echo "new_release='true'" >> $GITHUB_OUTPUT
-        else
-          echo "new_release='true'" >> $GITHUB_OUTPUT
-        fi
-
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
 
@@ -48,7 +38,6 @@ jobs:
 
     - name: Build and push
       uses: docker/build-push-action@v3
-      if: steps.check_release.outputs.new_release == 'true'
       with:
         build-args: PIHOLE_VERSION=${{ steps.pihole_version.outputs.release }}
         context: "{{defaultContext}}:pihole-unbound/"
