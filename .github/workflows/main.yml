@@ -1,50 +1,63 @@
-name: Push lastest release to dockerhub
+name: Get latest pihole release, build it and push to dockerhub
 
 on:
-    # cron job to trigger the build on any push to main
+  # cron job to trigger the build on any push to main
   push:
     branches:
       - 'main'
   schedule:
-  # cron job to trigger the build dialy
+  # cron job to trigger the build daily
     - cron:  '0 0 * * *'
 
 
 jobs:
-  docker:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: REST API with curl
-      id: STEP_GET_TAG
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Get latest release of pihole docker
+      id: pihole_version
+        env:
+	  token: ${{ secrets.GITHUB_TOKEN }}
+          repository: "pi-hole/docker-pi-hole"
+          type: "stable"
       run: |
-        echo "VERSION=$(curl -s https://api.github.com/repos/pi-hole/docker-pi-hole/releases | jq '.[0] | .name' -r)" >> $GITHUB_OUTPUT
-      -  name: Get value
-      run: echo "The selected color is ${{ steps.STEP_GET_TAG.outputs.VERSION }}"
-      # - name: Get latest release of pihole docker
-      #   uses: rez0n/actions-github-release@main
-      #   id: pihole_version
-      #   env:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     repository: "pi-hole/docker-pi-hole"
-      #     type: "stable"
-      # -
-      #   name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v2
-      # -
-      #   name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v2
-      # -
-      #   name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      # -
-      #   name: Build and push
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     build-args: PIHOLE_VERSION=${{ steps.pihole_version.outputs.release }}
-      #     context: "{{defaultContext}}:one-container/pihole-unbound/"
-      #     platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
-      #     push: true
-      #     tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.release }}
+        pihole_version=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+        echo "::set-output name=tag_name::$(echo $pihole_version | jq -r '.tag_name')"
+        echo "::set-output name=name::$(echo $pihole_version | jq -r '.name')"
+        echo "::set-output name=url::$(echo $pihole_version | jq -r '.html_url')"
+		
+      - name: check if celease is new
+      id: check_release
+      run: |
+        if [ "${{ steps.latest_release.outputs.name }}" != "${{ github.event.before }}" ]
+        then
+            echo "::set-output name=new_release::true"
+        else
+            echo "::set-output name=new_release::false"
+        fi
+		
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+		
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+		
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+		  
+      - name: Build and push
+	    if: steps.check_release.outputs.new_release == 'true'
+        uses: docker/build-push-action@v3
+        with:
+          build-args: PIHOLE_VERSION=${{ steps.pihole_version.outputs.release }}
+          context: "{{defaultContext}}:pihole-unbound/"
+          platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
+          push: true
+          tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.release }}
