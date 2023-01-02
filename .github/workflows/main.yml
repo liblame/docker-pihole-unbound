@@ -20,10 +20,10 @@ jobs:
 
     - name: Get latest release of pihole docker
       id: pihole_version
-        env:
-	  token: ${{ secrets.GITHUB_TOKEN }}
-          repository: "pi-hole/docker-pi-hole"
-          type: "stable"
+      env:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: "pi-hole/docker-pi-hole"
+        type: "stable"
       run: |
         pihole_version=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest")
         echo "::set-output name=tag_name::$(echo $pihole_version | jq -r '.tag_name')"
