@@ -21,6 +21,7 @@ jobs:
       id: pihole_version
       env:
         token: ${{ secrets.GITHUB_TOKEN }}
+        repository: "pi-hole/docker-pi-hole"
         type: "stable"
       run: echo release=$(curl --silent "https://api.github.com/repos/pi-hole/docker-pi-hole/releases/latest" | jq -r '.tag_name') >> $GITHUB_OUTPUT
 
