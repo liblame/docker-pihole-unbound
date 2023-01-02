@@ -25,6 +25,7 @@ jobs:
       run: |
         pihole_version=$(curl --silent "https://api.github.com/repos/pi-hole/docker-pi-hole/releases/latest")
         echo "{release}=$(echo $pihole_version | jq -r '.tag_name')" >> $GITHUB_OUTPUT
+        echo ${{ steps.pihole_version.outputs.release }}
 
     - name: check if release is new
       id: check_release
@@ -35,6 +36,7 @@ jobs:
         else
           echo "{new_release}={'true'}" >> $GITHUB_OUTPUT
         fi
+        echo ${{ steps.check_release.outputs.new_release} }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
