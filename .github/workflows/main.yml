@@ -34,7 +34,7 @@ jobs:
         then
           echo "{new_release}={true}"
         else
-          echo "{new_release}={false}"
+          echo "{new_release}={true}"
         fi
 
     - name: Set up QEMU
