@@ -22,13 +22,13 @@ jobs:
       env:
         token: ${{ secrets.GITHUB_TOKEN }}
         type: "stable"
-      run: |
+      run:
         pihole_version=$(curl --silent "https://api.github.com/repos/pi-hole/docker-pi-hole/releases/latest")
         echo "{release}=$(echo $pihole_version | jq -r '.tag_name')" >> $GITHUB_OUTPUT
 
     - name: check if release is new
       id: check_release
-      run: |
+      run:
         if [ "${{ steps.pihole_version.outputs.release }}" != "${{ github.event.before }}" ]
         then
           echo "{new_release}={true}" >> $GITHUB_OUTPUT
