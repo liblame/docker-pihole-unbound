@@ -24,7 +24,7 @@ jobs:
         type: "stable"
       run: |
         pihole_version=$(curl --silent "https://api.github.com/repos/pi-hole/docker-pi-hole/releases/latest")
-        echo "{release}=$(echo $pihole_version | jq -r '.tag_name')" >> $GITHUB_OUTPUT
+        echo "release=$(echo $pihole_version | jq -r '.tag_name')" >> $GITHUB_OUTPUT
         echo "$steps.pihole_version.outputs.release"
 
     - name: check if release is new
@@ -32,9 +32,9 @@ jobs:
       run: |
         if [ "${{ steps.pihole_version.outputs.release }}" != "${{ github.event.before }}" ]
         then
-          echo "{new_release}={'true'}" >> $GITHUB_OUTPUT
+          echo "new_release='true'" >> $GITHUB_OUTPUT
         else
-          echo "{new_release}={'true'}" >> $GITHUB_OUTPUT
+          echo "new_release='false'" >> $GITHUB_OUTPUT
         fi
         echo ${{ steps.check_release.outputs.new_release }}
         echo "$steps.check_release.outputs.new_release"
