@@ -24,10 +24,9 @@ jobs:
         repository: "pi-hole/docker-pi-hole"
         type: "stable"
       run: |
-        pihole_version=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest")
-        echo "::set-output name=tag_name::$(echo $pihole_version | jq -r '.tag_name')"
-        echo "::set-output name=name::$(echo $pihole_version | jq -r '.name')"
-        echo "::set-output name=url::$(echo $pihole_version | jq -r '.html_url')"
+        PIHOLE_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+        echo "::set-output name=tag_name::$(echo $PIHOLE_VERSION | jq -r '.tag_name')"
+        echo "::set-output name=name::$(echo $PIHOLE_VERSION | jq -r '.name')"
 
     - name: check if celease is new
       id: check_release
@@ -55,8 +54,8 @@ jobs:
       uses: docker/build-push-action@v3
       if: steps.check_release.outputs.new_release == 'true'
       with:
-        build-args: PIHOLE_VERSION=${{ steps.pihole_version.outputs.release }}
+        build-args: PIHOLE_VERSION=${{ steps.pihole_version.outputs.tag_name }}
         context: "{{defaultContext}}:pihole-unbound/"
         platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
         push: true
-        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.release }}
+        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.tag_name }}
