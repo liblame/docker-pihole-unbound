@@ -17,7 +17,7 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Get latest release of pihole docker
+    - name: Get latest release of pihole docker container
       id: pihole_version
       env:
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -25,7 +25,7 @@ jobs:
       run: |
         pihole_version=$(curl --silent "https://api.github.com/repos/pi-hole/docker-pi-hole/releases/latest")
         echo "release=$(echo $pihole_version | jq -r '.tag_name')" >> $GITHUB_OUTPUT
-        echo "$steps.pihole_version.outputs.release"
+        echo "$pihole_version"
 
     - name: check if release is new
       id: check_release
@@ -36,8 +36,6 @@ jobs:
         else
           echo "new_release='false'" >> $GITHUB_OUTPUT
         fi
-        echo ${{ steps.check_release.outputs.new_release }}
-        echo "$steps.check_release.outputs.new_release"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
