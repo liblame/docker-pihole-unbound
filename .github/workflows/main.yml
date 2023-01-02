@@ -10,12 +10,12 @@ on:
     - cron:  '0 0 * * *'
 
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Get latest release of pihole docker
       id: pihole_version
@@ -34,7 +34,7 @@ jobs:
         then
           echo "{new_release}={true}"
         else
-          echo "{new_release}={true}"
+          echo "{new_release}={false}"
         fi
 
     - name: Set up QEMU
@@ -53,8 +53,8 @@ jobs:
       uses: docker/build-push-action@v3
       if: steps.check_release.outputs.new_release == 'true'
       with:
-        build-args: pihole_version=${{ steps.pihole_version.outputs.release }}
+        build-args: pihole_version=${{ steps.pihole_version.outputs.tag_name }}
         context: "{{defaultContext}}:pihole-unbound/"
         platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
         push: true
-        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.release }}
+        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.tag_name }}
