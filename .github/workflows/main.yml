@@ -32,10 +32,6 @@ jobs:
         repository: "liblame/docker-pihole-unbound"
         type: "stable"
       run: echo release=$(curl --silent "https://api.github.com/repos/liblame/docker-pihole-unbound/releases/latest" | jq -r '.tag_name' ) >> $GITHUB_OUTPUT
-        
-    - name: New Version
-      id: some_release
-      run: echo ${{ steps.latest_release.outputs.release }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
