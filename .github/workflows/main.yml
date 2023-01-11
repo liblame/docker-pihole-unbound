@@ -53,11 +53,11 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
-        build-args: PIHOLE_VERSION=${{ steps.pihole_version.outputs.release }}
+        build-args: PIHOLE_VERSION=${{ env.PIHOLE_VERSION }}
         context: "{{defaultContext}}:pihole-unbound/"
         platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
         push: true
-        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.pihole_version.outputs.release }}
+        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ env.PIHOLE_VERSION }}
       if: ${{ steps.latest_release.outputs.release != steps.previous_release.outputs.release }}
       
     - name: Save previous release tag
