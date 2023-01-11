@@ -27,6 +27,10 @@ jobs:
       
     - name: Get previous release tag
       id: previous_release
+      env:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: "liblame/docker-pihole-unbound"
+        type: "stable"
       run: echo release=$(curl --silent "https://api.github.com/repos/liblame/docker-pihole-unbound/releases/latest" | jq -r '.tag_name' ) >> $GITHUB_OUTPUT
       
     - name: Check for new release
