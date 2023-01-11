@@ -34,6 +34,10 @@ jobs:
       run: echo "New release found"
       env:
         PIHOLE_VERSION: ${{ steps.latest_release.outputs.release }}
+        
+    - name: New Version
+      id: some_release
+      run: echo ${{ env.PIHOLE_VERSION }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -54,7 +58,6 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         build-args: PIHOLE_VERSION=${{ env.PIHOLE_VERSION }}
-        run: echo ${{ env.PIHOLE_VERSION }}
         context: "{{defaultContext}}:pihole-unbound/"
         platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
         push: true
