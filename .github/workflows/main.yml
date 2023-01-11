@@ -27,7 +27,7 @@ jobs:
       
     - name: Get previous release tag
       id: previous_release
-      run: echo release=$(cat ${GITHUB_WORKSPACE}/previous_release.txt) >> $GITHUB_OUTPUT
+      run: echo release=$(curl --silent "https://api.github.com/repos/liblame/docker-pihole-unbound/releases/latest" | jq -r '.tag_name' ) >> $GITHUB_OUTPUT
       
     - name: Check for new release
       if: ${{ steps.latest_release.outputs.release != steps.previous_release.outputs.release }}
@@ -63,9 +63,6 @@ jobs:
         push: true
         tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ env.PIHOLE_VERSION }}
       if: ${{ steps.latest_release.outputs.release != steps.previous_release.outputs.release }}
-      
-    - name: Save previous release tag
-      run: echo ${{ steps.latest_release.outputs.release }} > ${GITHUB_WORKSPACE}/previous_release.txt
         
     - name: Create release
       uses: actions/create-release@v1
