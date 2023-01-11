@@ -32,16 +32,10 @@ jobs:
         repository: "liblame/docker-pihole-unbound"
         type: "stable"
       run: echo release=$(curl --silent "https://api.github.com/repos/liblame/docker-pihole-unbound/releases/latest" | jq -r '.tag_name' ) >> $GITHUB_OUTPUT
-      
-    - name: Check for new release
-      if: ${{ steps.latest_release.outputs.release != steps.previous_release.outputs.release }}
-      run: echo "New release found"
-      env:
-        PIHOLE_VERSION: ${{ steps.latest_release.outputs.release }}
         
     - name: New Version
       id: some_release
-      run: echo ${{ env.PIHOLE_VERSION }}
+      run: echo ${{ steps.latest_release.outputs.release }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -61,11 +55,11 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
-        build-args: PIHOLE_VERSION=${{ env.PIHOLE_VERSION }}
+        build-args: PIHOLE_VERSION=${{ steps.latest_release.outputs.release }}
         context: "{{defaultContext}}:pihole-unbound/"
         platforms: linux/arm/v7,linux/arm64/v8,linux/amd64
         push: true
-        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ env.PIHOLE_VERSION }}
+        tags: liblame/pihole-unbound:latest,liblame/pihole-unbound:${{ steps.latest_release.outputs.release }}
       if: ${{ steps.latest_release.outputs.release != steps.previous_release.outputs.release }}
         
     - name: Create release
@@ -74,7 +68,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.latest_release.outputs.release }}
-        release_name: "Updated to ${{ steps.latest_release.outputs.release }}"
+        release_name: "${{ steps.latest_release.outputs.release }}"
         body: |
           Changelog found on [pi-hole github](https://github.com/pi-hole/docker-pi-hole/releases), please read the changes before updating.
           You can update the docker image with:
